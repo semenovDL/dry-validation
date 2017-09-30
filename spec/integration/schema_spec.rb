@@ -67,7 +67,9 @@ RSpec.describe Dry::Validation::Schema, 'defining key-based schema' do
 
           required(:street).filled
 
-          required(:country).schema(CountrySchema)
+          required(:country).schema(CountrySchema) do
+            required(:full_name).filled
+          end
         end
 
         required(:phone_numbers).each(:str?)
@@ -78,7 +80,11 @@ RSpec.describe Dry::Validation::Schema, 'defining key-based schema' do
       {
         email: 'jane@doe.org',
         age: 19,
-        address: { city: 'NYC', street: 'Street 1/2', country: { code: 'US', name: 'USA' } },
+        address: {
+          city: 'NYC',
+          street: 'Street 1/2',
+          country: { code: 'US', name: 'USA', full_name: 'United States of America' }
+        },
         phone_numbers: [
           '123456', '234567'
         ]
@@ -143,13 +149,13 @@ RSpec.describe Dry::Validation::Schema, 'defining key-based schema' do
         )
       end
 
-      it 'validates address code and name values' do
+      it 'validates address code, name and full name values' do
         attrs = input.merge(
-          address: input[:address].merge(country: { code: 'US', name: '' })
+          address: input[:address].merge(country: { code: 'US', name: '', full_name: '' })
         )
 
         expect(schema.(attrs).messages).to eql(
-          address: { country: { name: ['must be filled'] } }
+          address: { country: { name: ['must be filled'], full_name: ['must be filled'] } }
         )
       end
 

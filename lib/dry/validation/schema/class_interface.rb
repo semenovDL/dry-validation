@@ -90,7 +90,11 @@ module Dry
           if other.is_a?(self)
             Class.new(other.class)
           elsif other.respond_to?(:schema) && other.schema.is_a?(self)
-            Class.new(other.schema.class)
+            if block_given?
+              Validation.Schema(other.schema.class, parent: target, build: false, &block)
+            else
+              Class.new(other.schema.class)
+            end
           else
             Validation.Schema(target.schema_class, parent: target, build: false, &block)
           end
